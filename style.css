@@ -1,0 +1,131 @@
+/* สีทั้งหมดอยู่ในตัวแปร เพื่อสลับโหมดมืดได้ที่เดียว */
+:root {
+  --bg: #f6f7f9;
+  --card: #ffffff;
+  --text: #1c2430;
+  --muted: #5f6b7a;
+  --line: #e3e7ec;
+  --accent: #2563eb;
+
+  --lv1: #0369a1; --lv1-bg: #e0f2fe;  /* ดีมาก */
+  --lv2: #15803d; --lv2-bg: #dcfce7;  /* ดี */
+  --lv3: #a16207; --lv3-bg: #fef3c7;  /* ปานกลาง */
+  --lv4: #c2410c; --lv4-bg: #ffedd5;  /* เริ่มมีผลต่อสุขภาพ */
+  --lv5: #b91c1c; --lv5-bg: #fee2e2;  /* มีผลต่อสุขภาพ */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f141a;
+    --card: #171e27;
+    --text: #e6ebf1;
+    --muted: #93a0b0;
+    --line: #28313c;
+    --accent: #60a5fa;
+
+    --lv1: #7dd3fc; --lv1-bg: #0c3147;
+    --lv2: #86efac; --lv2-bg: #0f3320;
+    --lv3: #fcd34d; --lv3-bg: #3b2f0a;
+    --lv4: #fdba74; --lv4-bg: #3d210d;
+    --lv5: #fca5a5; --lv5-bg: #461616;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Segoe UI", "Noto Sans Thai", system-ui, sans-serif;
+  line-height: 1.5;
+}
+
+header, main { max-width: 1000px; margin: 0 auto; padding: 0 16px; }
+header { padding-top: 28px; padding-bottom: 8px; }
+h1 { margin: 0; font-size: 1.8rem; }
+.sub { margin: 4px 0 0; color: var(--muted); }
+
+/* การ์ดสรุป */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  margin: 16px 0;
+}
+.card {
+  background: var(--card);
+  border: 2px solid var(--line);
+  border-radius: 12px;
+  padding: 12px 14px;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+.card .n { display: block; font-size: 2rem; font-weight: 700; line-height: 1.1; }
+.card .l { color: var(--muted); font-size: 0.9rem; }
+.card.active { border-color: var(--accent); }
+.card:focus-visible, select:focus-visible, input:focus-visible, th:focus-visible {
+  outline: 3px solid var(--accent); outline-offset: 2px;
+}
+
+/* ช่องกรอง */
+.controls { display: flex; flex-wrap: wrap; gap: 8px; }
+.controls input, .controls select {
+  font: inherit;
+  padding: 10px 12px;
+  background: var(--card);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+.controls input { flex: 1 1 220px; }
+
+.result-count { color: var(--muted); margin: 12px 0 6px; }
+
+/* แผนที่ */
+#map {
+  height: 420px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  margin-bottom: 16px;
+  z-index: 0; /* กันแผนที่ลอยทับ dropdown */
+}
+
+/* ตาราง */
+.table-wrap {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow-x: auto;
+  max-height: 65vh;
+  overflow-y: auto;
+}
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 10px 14px; text-align: left; white-space: nowrap; }
+th {
+  position: sticky; top: 0;
+  background: var(--card);
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+}
+th.sorted::after { content: " ▲"; font-size: 0.7em; }
+th.sorted.desc::after { content: " ▼"; }
+td { border-bottom: 1px solid var(--line); }
+tr:last-child td { border-bottom: 0; }
+.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* ป้ายระดับ: มีทั้งสีและข้อความ ไม่พึ่งสีอย่างเดียว */
+.badge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 0.85rem; font-weight: 600; }
+.lv1 { color: var(--lv1); background: var(--lv1-bg); }
+.lv2 { color: var(--lv2); background: var(--lv2-bg); }
+.lv3 { color: var(--lv3); background: var(--lv3-bg); }
+.lv4 { color: var(--lv4); background: var(--lv4-bg); }
+.lv5 { color: var(--lv5); background: var(--lv5-bg); }
+
+.empty { text-align: center; color: var(--muted); padding: 24px; }
+.note { color: var(--muted); font-size: 0.85rem; margin: 12px 0 32px; }

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PM2.5 เชียงใหม่</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>PM2.5 เชียงใหม่</h1>
+    <p class="sub">ข้อมูลรายอำเภอและตำบล · เวลาเป็นค่าโดยประมาณ (เวลาดาวน์โหลดไฟล์)</p>
+  </header>
+
+  <main>
+    <!-- การ์ดสรุป: แต่ละใบคือจำนวนพื้นที่ในระดับนั้น กดเพื่อกรอง -->
+    <section id="cards" class="cards" aria-label="สรุปตามระดับคุณภาพอากาศ"></section>
+
+    <section class="controls">
+      <input id="search" type="search" placeholder="ค้นหาชื่ออำเภอหรือตำบล..." autocomplete="off">
+      <select id="snapshot" aria-label="เวลาของข้อมูล"></select>
+      <select id="kind" aria-label="ระดับพื้นที่">
+        <option value="">ทุกระดับพื้นที่</option>
+        <option value="อำเภอ/เขต">อำเภอ</option>
+        <option value="ตำบล/แขวง">ตำบล</option>
+      </select>
+      <select id="district" aria-label="อำเภอ"><option value="">ทุกอำเภอ</option></select>
+    </section>
+
+    <p id="result-count" class="result-count"></p>
+
+    <!-- แผนที่: จุดสีตามระดับ ใช้ตัวกรองชุดเดียวกับตาราง -->
+    <div id="map" role="img" aria-label="แผนที่จุดวัด PM2.5 ในเชียงใหม่"></div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th data-key="name">ชื่อ</th>
+            <th data-key="district">อำเภอ</th>
+            <th data-key="now" class="num">ตอนนี้</th>
+            <th data-key="avg" class="num">เฉลี่ย 7 วัน</th>
+            <th data-key="max" class="num">สูงสุด 7 วัน</th>
+            <th data-key="now">ระดับ</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+    <p class="note">หน่วย µg/m³ · ระดับคำนวณจากค่า "ตอนนี้" ตามเกณฑ์ของกรมควบคุมมลพิษ จึงเป็นค่าประมาณ ไม่ใช่ AQI ทางการ</p>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
