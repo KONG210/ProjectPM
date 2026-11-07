@@ -1,58 +1,108 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PM2.5 เชียงใหม่</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
-  <link rel="stylesheet" href="style.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PM2.5 ไทย</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anuphan:wght@200;400;600&display=swap">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <header>
-    <h1>PM2.5 เชียงใหม่</h1>
-    <p class="sub">ข้อมูลรายอำเภอและตำบล · เวลาเป็นค่าโดยประมาณ (เวลาดาวน์โหลดไฟล์)</p>
-  </header>
 
-  <main>
-    <!-- การ์ดสรุป: แต่ละใบคือจำนวนพื้นที่ในระดับนั้น กดเพื่อกรอง -->
-    <section id="cards" class="cards" aria-label="สรุปตามระดับคุณภาพอากาศ"></section>
-
-    <section class="controls">
-      <input id="search" type="search" placeholder="ค้นหาชื่ออำเภอหรือตำบล..." autocomplete="off">
-      <select id="snapshot" aria-label="เวลาของข้อมูล"></select>
-      <select id="kind" aria-label="ระดับพื้นที่">
-        <option value="">ทุกระดับพื้นที่</option>
-        <option value="อำเภอ/เขต">อำเภอ</option>
-        <option value="ตำบล/แขวง">ตำบล</option>
-      </select>
-      <select id="district" aria-label="อำเภอ"><option value="">ทุกอำเภอ</option></select>
-    </section>
-
-    <p id="result-count" class="result-count"></p>
-
-    <!-- แผนที่: จุดสีตามระดับ ใช้ตัวกรองชุดเดียวกับตาราง -->
-    <div id="map" role="img" aria-label="แผนที่จุดวัด PM2.5 ในเชียงใหม่"></div>
-
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th data-key="name">ชื่อ</th>
-            <th data-key="district">อำเภอ</th>
-            <th data-key="now" class="num">ตอนนี้</th>
-            <th data-key="avg" class="num">เฉลี่ย 7 วัน</th>
-            <th data-key="max" class="num">สูงสุด 7 วัน</th>
-            <th data-key="now">ระดับ</th>
-          </tr>
-        </thead>
-        <tbody id="rows"></tbody>
-      </table>
+<header class="top">
+  <div class="top-in">
+    <div class="brand">PM2.5 <span>ไทย</span></div>
+    <div class="search">
+      <input id="q" type="search" placeholder="ค้นหาจังหวัด อำเภอ เขต หรือตำบล เช่น หาดใหญ่" autocomplete="off" aria-label="ค้นหาพื้นที่">
+      <ul id="hits" class="drop" hidden></ul>
     </div>
-    <p class="note">หน่วย µg/m³ · ระดับคำนวณจากค่า "ตอนนี้" ตามเกณฑ์ของกรมควบคุมมลพิษ จึงเป็นค่าประมาณ ไม่ใช่ AQI ทางการ</p>
-  </main>
+  </div>
+</header>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-  <script src="data.js"></script>
-  <script src="app.js"></script>
+<main class="wrap">
+  <nav class="scope" aria-label="เลือกพื้นที่">
+    <div class="field"><input id="prov" placeholder="ทั้งประเทศ" autocomplete="off" aria-label="จังหวัด"><ul id="prov-list" class="drop" hidden></ul></div>
+    <span class="sep" aria-hidden="true">›</span>
+    <div class="field"><input id="dist" placeholder="อำเภอ / เขต" autocomplete="off" aria-label="อำเภอหรือเขต" disabled><ul id="dist-list" class="drop" hidden></ul></div>
+    <span class="sep" aria-hidden="true">›</span>
+    <div class="field"><input id="sub" placeholder="ตำบล / แขวง" autocomplete="off" aria-label="ตำบลหรือแขวง" disabled><ul id="sub-list" class="drop" hidden></ul></div>
+    <button id="locate" class="ghost"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3.5"/><circle cx="12" cy="12" r="8"/><path d="M12 1v3M12 20v3M1 12h3M20 12h3"/></svg> ใช้ตำแหน่งของฉัน</button>
+    <button id="reset" class="ghost">ดูทั้งประเทศ</button>
+  </nav>
+  <p id="here" hidden></p>
+
+  <section class="hero">
+    <div class="hero-text">
+      <p class="area"><b id="hero-area">ทั้งประเทศ</b><span id="hero-sub"></span></p>
+      <div class="big"><span id="hero-num">–</span><small>µg/m³</small></div>
+      <h1 id="hero-level">กำลังโหลด</h1>
+      <p id="hero-advice"></p>
+      <p id="hero-cmp"></p>
+      <p id="hero-fc"></p>
+      <div class="facts" id="facts"></div>
+      <div class="tools">
+        <span id="metric" class="seg"><button data-m="now" class="on">ตอนนี้</button><button data-m="mean7">เฉลี่ย 7 วัน</button></span>
+        <button id="csv" class="ghost">ดาวน์โหลด CSV</button>
+        <button id="copy" class="ghost">คัดลอกลิงก์</button>
+      </div>
+      <p id="status">กำลังโหลด...</p>
+    </div>
+    <div class="hero-map">
+      <div id="map"></div>
+      <div class="legend" id="legend"></div>
+    </div>
+  </section>
+
+  <section class="block" id="trend-box">
+    <div class="head"><h2 id="trend-title">แนวโน้ม PM2.5 7 วันล่าสุด</h2><button class="ghost sm" id="save-trend">บันทึกเป็นรูป</button></div>
+    <div class="chartbox"><canvas id="trend"></canvas></div>
+  </section>
+
+  <section class="block" id="heat-box">
+    <h2>ฝุ่นช่วงไหนของวัน</h2>
+    <p class="say" id="heat-say"></p>
+    <div id="heat"></div>
+    <p class="hint">เฉลี่ยรายช่วง 6 ชั่วโมงจากค่าของ 7 วันที่ผ่านมา สีบอกระดับตามเกณฑ์</p>
+  </section>
+
+  <section class="block duo">
+    <div>
+      <div class="head"><h2 id="rank-title">อันดับ</h2>
+        <span class="seg sm" id="rankdir"><button data-d="desc" class="on">สูงสุด</button><button data-d="asc">น้อยสุด</button></span></div>
+      <ol id="rank"></ol>
+    </div>
+    <div id="sub-box" hidden>
+      <h2 id="sub-title"></h2>
+      <ol id="subrank"></ol>
+    </div>
+    <div id="region-box" hidden>
+      <h2>สรุปรายภาค</h2>
+      <table id="regions"></table>
+    </div>
+  </section>
+
+  <section class="block" id="wx-box" hidden>
+    <div class="head"><h2>ฝุ่นกับสภาพอากาศ</h2><button class="ghost sm" id="save-wx">บันทึกเป็นรูป</button></div>
+    <p class="hint" id="wx-sub"></p>
+    <div class="seg" id="wx-pills"></div>
+    <p class="say" id="wx-say"></p>
+    <div class="chartbox"><canvas id="wxchart"></canvas></div>
+    <p id="wx-note"></p>
+  </section>
+
+  <footer>
+    ข้อมูลฝุ่นและอากาศ: Open-Meteo (ค่าจากโมเดล ความละเอียดราว 10 กม. ไม่ใช่เครื่องวัดจริง ตำบลที่อยู่ใกล้กันจึงมักได้ค่าใกล้เคียงกัน)
+    · พิกัดตำบล: kongvut/thai-province-data · เกณฑ์สีและระดับ: กรมควบคุมมลพิษ · คำแนะนำสุขภาพเป็นข้อมูลทั่วไป ไม่ใช่คำแนะนำทางการแพทย์
+  </footer>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="js/config.js"></script>
+<script src="js/admin.js"></script>
+<script src="js/app.js"></script>
 </body>
 </html>
